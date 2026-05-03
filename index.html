@@ -1,1064 +1,805 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StratOS | Rahul J</title>
-    <!-- Custom Favicon: Electric Cyan Microchip -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%2216%22%20y%3D%2216%22%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%224%22%20fill%3D%22%230d1117%22%20stroke%3D%22%2300f3ff%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M32%2016V8%20M32%2048V56%20M16%2032H8%20M48%2032H56%20M24%2016V8%20M40%2016V8%20M24%2048V56%20M40%2048V56%20M16%2024H8%20M48%2024H56%20M16%2040H8%20M48%2040H56%22%20stroke%3D%22%2300f3ff%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --window-bg: rgba(13, 17, 23, 0.85); /* Slightly more transparent for aesthetic bg */
-            --taskbar-bg: rgba(13, 17, 23, 0.75);
-            --text-color: #e6edf3;
-            --accent-color: #00f3ff;
-            --accent-green: #0aff60;
-            --accent-red: #ff2a6d;
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            --discord-bg: #111214;
-            --discord-card: #232428;
-            --discord-blurple: #5865F2;
-            --vscode-bg: #1e1e1e;
-            --vscode-sidebar: #252526;
-            --vscode-activity: #333333;
-            --chat-bg: #0f111a;
-            --chat-bubble-user: #008891;
-            --chat-bubble-bot: #21262d;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rahul J. // Dashboard</title>
+  
+  <!-- Load Custom Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500&family=JetBrains+Mono:wght@400&family=Saira+Condensed:wght@400&display=swap" rel="stylesheet">
+  
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Load React & Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-            /* Aesthetic Abstract Background */
-            background: url('https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
-            background-size: cover;
-            color: var(--text-color);
-            height: 100vh;
-            user-select: none;
-        }
-
-        /* Subtle Vignette Overlay */
-        body::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.4) 100%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #424242; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
-
-        #boot-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; color: var(--accent-color); font-family: 'JetBrains Mono', monospace;
-            z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; font-size: 14px;
-        }
-        #boot-logo { font-size: 64px; margin-bottom: 30px; text-shadow: 0 0 20px var(--accent-color); animation: flicker 2s infinite; }
-        #boot-log { width: 320px; text-align: left; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
-        .log-line { opacity: 0; animation: fadeIn 0.1s forwards; white-space: nowrap; overflow: hidden; }
-        
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes flicker { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
-
-        #image-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 20000;
-            justify-content: center; align-items: center; backdrop-filter: blur(10px);
-        }
-        #modal-img { max-width: 90%; max-height: 90%; border-radius: 4px; box-shadow: 0 0 40px rgba(0,243,255,0.3); border: 1px solid var(--accent-color); }
-        #modal-close { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; z-index: 20001; }
-
-        #notification-area {
-            position: absolute; top: 20px; right: 20px; z-index: 10000;
-            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
-        }
-        .toast {
-            pointer-events: auto; background: rgba(13, 17, 23, 0.95);
-            border: 1px solid rgba(0, 243, 255, 0.2); border-left: 4px solid var(--accent-color);
-            padding: 15px; border-radius: 6px; color: #fff; width: 320px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex; flex-direction: column; gap: 6px; backdrop-filter: blur(12px);
-        }
-        .toast-title { font-weight: bold; font-size: 14px; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center;}
-        .toast-msg { font-size: 13px; color: #c9d1d9; line-height: 1.5; }
-        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
-
-        #desktop {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            padding: 30px; display: flex; flex-direction: column; flex-wrap: wrap;
-            gap: 20px; align-content: flex-start; z-index: 1;
-        }
-        .desktop-icon {
-            width: 90px; height: 105px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; cursor: pointer;
-            border-radius: 8px; transition: all 0.2s; color: rgba(255,255,255,0.9);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
-        }
-        .desktop-icon:hover { background: rgba(0, 243, 255, 0.1); backdrop-filter: blur(10px); transform: translateY(-3px); color: #fff; text-shadow: 0 0 10px var(--accent-color); }
-        .desktop-icon i { font-size: 42px; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); }
-        .desktop-icon span { font-size: 13px; text-align: center; font-weight: 500; line-height: 1.2; }
-
-        .window {
-            position: absolute; background: var(--window-bg); backdrop-filter: blur(25px);
-            border: var(--glass-border); border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;
-            overflow: hidden; min-width: 200px; min-height: 100px;
-            transition: opacity 0.2s, transform 0.2s; animation: openWin 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 10;
-        }
-        @keyframes openWin { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        .window.minimized { opacity: 0; transform: scale(0.8) translateY(200px); pointer-events: none; }
-        .window.maximized { top: 0 !important; left: 0 !important; width: 100% !important; height: calc(100% - 60px) !important; border-radius: 0; }
-        .window-header {
-            background: linear-gradient(to right, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-            padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-            cursor: default; border-bottom: 1px solid rgba(255, 255, 255, 0.08); user-select: none;
-        }
-        .window-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.95); }
-        .window-controls { display: flex; gap: 8px; }
-        .control-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; position: relative; }
-        .close-btn { background: #ff5f56; }
-        .min-btn { background: #ffbd2e; }
-        .max-btn { background: #27c93f; }
-        .window-content { flex-grow: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
-
-        .terminal-app { background-color: #050505; color: #ccc; font-family: 'JetBrains Mono', monospace; height: 100%; padding: 8px; box-sizing: border-box; font-size: 14px; display: flex; flex-direction: column; }
-        .terminal-scroll { flex-grow: 1; overflow-y: auto; padding: 10px; }
-        .term-line { margin-bottom: 3px; line-height: 1.5; }
-        .term-input-line { display: flex; margin-top: 5px; align-items: center; }
-        .prompt-user { color: var(--accent-green); font-weight: bold; }
-        .term-input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; flex-grow: 1; outline: none; }
-
-        .chat-app { display: flex; flex-direction: column; height: 100%; background: var(--chat-bg); }
-        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .chat-input-area { padding: 15px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; }
-        .chat-input { flex-grow: 1; background: #21262d; border: 1px solid #30363d; color: white; padding: 10px; border-radius: 6px; outline: none; }
-        .chat-btn { background: var(--accent-color); color: #000; border: none; padding: 0 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .chat-bubble { max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 14px; word-wrap: break-word; }
-        .chat-bubble.user { align-self: flex-end; background: var(--chat-bubble-user); color: white; }
-        .chat-bubble.bot { align-self: flex-start; background: var(--chat-bubble-bot); color: #e6edf3; border: 1px solid #30363d; }
-        
-        .browser-app { display: flex; flex-direction: column; height: 100%; background: #1a1a1a; }
-        .browser-bar { background: rgba(30, 30, 30, 0.9); padding: 10px 15px; display: flex; gap: 12px; border-bottom: 1px solid #333; align-items: center; }
-        .url-bar { flex-grow: 1; background: #0d0d0d; border: 1px solid #333; padding: 8px 16px; border-radius: 8px; font-size: 13px; color: #eee; font-family: 'JetBrains Mono', monospace; }
-        .browser-content { flex-grow: 1; background: #fff; position: relative; overflow: hidden; }
-        /* Browser Home Styles */
-        .browser-home { 
-            width: 100%; height: 100%; 
-            background: #0d1117; 
-            background-image: radial-gradient(#21262d 1px, transparent 1px); 
-            background-size: 20px 20px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            gap: 40px; 
-            overflow-y: auto;
-            box-sizing: border-box;
-            padding: 20px;
-        }
-        .dial-grid { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; max-width: 800px; padding: 20px; }
-        .dial-item { width: 130px; height: 130px; background: rgba(33, 38, 45, 0.8); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; border: 1px solid #30363d; backdrop-filter: blur(5px); }
-        .dial-item:hover { transform: translateY(-8px); background: #30363d; border-color: var(--accent-color); box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); }
-        .dial-icon { font-size: 48px; margin-bottom: 15px; color: #e6edf3; }
-        .dial-label { font-weight: 600; font-size: 14px; color: #e6edf3; }
-
-        /* Tools Hub Styles */
-        .tools-hub-container { 
-            width: 100%; height: 100%; 
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: flex-start; 
-            background: #0d1117; 
-            gap: 40px; 
-            overflow-y: auto; 
-            padding: 40px 20px; 
-            box-sizing: border-box; 
-        }
-        .tools-header { font-size: 28px; font-weight: bold; color: #fff; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
-        .tool-cards { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
-        .tool-card { width: 220px; height: 160px; background: #161b22; border: 1px solid #30363d; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; flex-shrink: 0; }
-        .tool-card:hover { border-color: var(--accent-color); transform: translateY(-5px); box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); }
-        .tool-card:hover .tool-bg { opacity: 0.1; transform: scale(1.2); }
-        .tool-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, var(--accent-color), #a371f7); opacity: 0; transition: all 0.5s; z-index: 0; }
-        .tool-icon { font-size: 40px; margin-bottom: 15px; color: #e6edf3; z-index: 1; }
-        .tool-name { font-size: 16px; font-weight: bold; color: #fff; z-index: 1; }
-        .tool-desc { font-size: 12px; color: #8b949e; margin-top: 5px; z-index: 1; text-align: center; }
-
-        /* Social / GitHub */
-        .social-feed { width: 100%; height: 100%; overflow-y: auto; background: #0d1117; padding: 20px; box-sizing: border-box; }
-        .github-layout { display: flex; gap: 20px; height: 100%; }
-        .github-sidebar { width: 260px; flex-shrink: 0; }
-        .github-main { flex-grow: 1; overflow-y: auto; }
-        .profile-img { width: 250px; height: 250px; border-radius: 50%; object-fit: cover; border: 1px solid #30363d; margin-bottom: 15px; }
-        .profile-name { font-size: 24px; font-weight: bold; color: #c9d1d9; }
-        .profile-login { font-size: 20px; color: #8b949e; font-weight: 300; margin-bottom: 15px; }
-        .repo-grid { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
-        .card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
-        .card:hover { border-color: var(--accent-color); background: #161b22; }
-        .card-left { flex-grow: 1; min-width: 0; margin-right: 15px; }
-        .card-title { font-weight: bold; color: var(--accent-color); font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;}
-        .card-desc { font-size: 13px; color: #8b949e; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .card-meta { font-size: 12px; color: #8b949e; margin-top: 6px; display: flex; gap: 15px; align-items: center;}
-        .lang-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .card-actions { display: flex; gap: 10px; }
-        .repo-btn { padding: 6px 12px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
-        .repo-btn:hover { background: #30363d; color: #fff; }
-
-        /* Discord */
-        .discord-container { width: 100%; height: 100%; background: var(--discord-bg); display: flex; justify-content: center; align-items: center; overflow-y: auto; }
-        .discord-modal { width: 600px; background: var(--discord-card); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; margin: 20px; }
-        .discord-banner { height: 210px; background-color: var(--discord-blurple); background-size: cover; background-position: center; }
-        .discord-avatar-wrapper { position: absolute; top: 156px; left: 20px; width: 128px; height: 128px; border-radius: 50%; background: var(--discord-card); padding: 7px; }
-        .discord-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1; }
-        .discord-status-dot { width: 28px; height: 28px; border-radius: 50%; border: 5px solid var(--discord-card); position: absolute; bottom: 5px; right: 5px; z-index: 3; }
-        .discord-body { margin-top: 80px; padding: 20px; background: #2b2d31; border-radius: 12px; margin: 16px; margin-top: 70px; }
-        .discord-username { font-size: 22px; font-weight: 700; color: #fff; }
-        .discord-handle { font-size: 14px; color: #b9bbbe; margin-bottom: 20px; }
-        .discord-section-title { font-size: 11px; font-weight: 800; color: #b9bbbe; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .discord-bio { font-size: 14px; color: #dbdee1; white-space: pre-wrap; line-height: 1.4; margin-bottom: 20px; }
-        .discord-activity-card { background: #111214; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: center; margin-top: 10px; }
-
-        .vscode-layout { display: flex; height: 100%; background: var(--vscode-bg); color: #ccc; }
-        .vscode-activity-bar { width: 48px; background: var(--vscode-activity); display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
-        .vscode-icon { font-size: 24px; color: #858585; margin-bottom: 25px; cursor: pointer; }
-        .vscode-sidebar { width: 200px; background: var(--vscode-sidebar); font-size: 13px; border-right: 1px solid #1e1e1e; }
-        .vscode-file { padding: 4px 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; border-left: 2px solid transparent; }
-        .vscode-file.active { background: #37373d; color: #fff; border-left: 2px solid var(--accent-color); }
-        .vscode-main { flex-grow: 1; display: flex; flex-direction: column; }
-        .vscode-tabs { display: flex; background: var(--vscode-sidebar); }
-        .vscode-tab { padding: 8px 15px; background: var(--vscode-sidebar); color: #969696; font-size: 13px; border-right: 1px solid #1e1e1e; }
-        .vscode-tab.active { background: var(--vscode-bg); color: #fff; border-top: 1px solid var(--accent-color); }
-        .vscode-editor-area { flex-grow: 1; display: flex; }
-        .vscode-gutter { width: 50px; text-align: right; padding-right: 15px; padding-top: 10px; font-family: 'Consolas', monospace; font-size: 14px; color: #858585; border-right: 1px solid rgba(255,255,255,0.05); }
-        .vscode-code { flex-grow: 1; padding: 10px; font-family: 'Consolas', monospace; font-size: 14px; white-space: pre; overflow: auto; outline: none; }
-        .vscode-status-bar { height: 22px; background: var(--accent-color); color: #000; display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: bold; }
-
-        #taskbar { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 90%; height: 52px; background: var(--taskbar-bg); backdrop-filter: blur(20px); border: var(--glass-border); border-radius: 14px; display: flex; align-items: center; padding: 0 10px; z-index: 1000; }
-        /* Updated Start Button Style */
-        #start-btn { 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 12px; 
-            background: linear-gradient(135deg, #00f3ff, #008891); /* Cyan/Teal Gradient */
-            color: #000; /* Dark icon for contrast */
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 22px; 
-            cursor: pointer; 
-            margin-right: 15px;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
-        }
-        .task-list { display: flex; gap: 8px; flex-grow: 1; }
-        .task-item { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.05); transition: 0.2s; position: relative; }
-        .task-item.active::after { content: ''; position: absolute; bottom: -4px; width: 16px; height: 3px; background: var(--accent-color); border-radius: 2px; }
-
-        #start-menu { position: absolute; bottom: 80px; left: 5%; width: 320px; background: rgba(22, 27, 34, 0.95); border: var(--glass-border); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px; z-index: 1001; }
-        .start-item { padding: 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.1s; }
-        .start-item:hover { background: rgba(255,255,255,0.1); }
-
-        .chess-card { background: #161b22; padding: 20px; border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; gap: 15px; align-items: center; width: 300px; }
-        .chess-avatar { width: 70px; height: 70px; border-radius: 8px; border: 2px solid #2ea043; }
-        .chess-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-        .stat-box { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center; }
-
-        .token-keyword { color: #569cd6; }
-        .token-string { color: #ce9178; }
-
-        /* Network Status in Tray */
-        .tray-item { display: flex; align-items: center; gap: 6px; opacity: 0.8; font-size: 12px; color: white; transition: opacity 0.2s; }
-        .tray-item:hover { opacity: 1; }
-        .tray-icon { color: var(--accent-green); }
-    </style>
+  <style>
+    body { background-color: #000; margin: 0; padding: 0; }
+  </style>
 </head>
 <body>
+  <div id="root"></div>
 
-    <div id="image-modal">
-        <div id="modal-close" onclick="document.getElementById('image-modal').style.display='none'">&times;</div>
-        <img id="modal-img" src="">
-    </div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-    <div id="notification-area"></div>
+    // --- ICON SYSTEM (Replacing Lucide Imports for Standalone HTML) ---
+    const IconBase = ({ size = 24, className = "", children }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        {children}
+      </svg>
+    );
+    const Menu = (props) => <IconBase {...props}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconBase>;
+    const X = (props) => <IconBase {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
+    const ArrowRight = (props) => <IconBase {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></IconBase>;
+    const ExternalLink = (props) => <IconBase {...props}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></IconBase>;
+    const Github = (props) => <IconBase {...props}><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></IconBase>;
+    const Linkedin = (props) => <IconBase {...props}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></IconBase>;
+    const Terminal = (props) => <IconBase {...props}><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></IconBase>;
+    const Activity = (props) => <IconBase {...props}><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></IconBase>;
 
-    <div id="boot-screen">
-        <div id="boot-logo"><i class="fa-solid fa-fingerprint"></i></div>
-        <div id="boot-log"></div>
-    </div>
+    const DiscordIcon = ({ size = 16, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 16.5C21 16.5 19.5 21 15 21C15 21 14.5 19.5 14 19C15.5 18.5 16 17.5 16 17.5C16 17.5 15.5 18 12 18.5C8.5 18 8 17.5 8 17.5C8 17.5 8.5 18.5 10 19C9.5 19.5 9 21 9 21C4.5 21 3 16.5 3 16.5C3 16.5 4.5 10.5 8 10L8.5 11.5C8.5 11.5 10.5 10.5 12 10.5C13.5 10.5 15.5 11.5 15.5 11.5L16 10C19.5 10.5 21 16.5 21 16.5Z"/>
+        <circle cx="9" cy="14" r="1" fill="currentColor"/>
+        <circle cx="15" cy="14" r="1" fill="currentColor"/>
+      </svg>
+    );
 
-    <div id="start-menu">
-        <div style="font-weight:bold; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">Rahul J | Architect</div>
-        <div class="start-item" onclick="createWindow('Terminal', 'terminal')"><i class="fa-solid fa-terminal"></i> Terminal</div>
-        <div class="start-item" onclick="createWindow('CustomLLM', 'neuralchat')"><i class="fa-solid fa-microchip"></i> CustomLLM</div>
-        <div class="start-item" onclick="createWindow('Browser', 'browser')"><i class="fa-solid fa-globe"></i> Browser</div>
-        <div class="start-item" onclick="location.reload()" style="color:#ff7b72"><i class="fa-solid fa-power-off"></i> Shut Down</div>
-    </div>
+    // --- DATA & CONTENT ---
+    const DATA = {
+      profile: {
+        name: "RAHUL J.",
+        headline: "BUILDING INTELLIGENCE, ONE LAYER AT A TIME",
+        subtitle: "19-year-old B.E. Artificial Intelligence & Data Science student. Exploring the intersection of cognition, quantitative systems, and the architecture of lasting growth.",
+        github: "https://github.com/SolvyrEryx",
+        linkedin: "https://www.linkedin.com/in/rahulj7777",
+        discord: "ineffablebeast"
+      },
+      identity: {
+        core: "I am not someone who follows a traditional path blindly. My journey is shaped by a strong internal drive to achieve something meaningful and create a life of independence, impact, and freedom.",
+        vision: "To relentlessly expand cognitive and technical frameworks. Building a lifelong, self-directed curriculum at the intersection of deep tech, human behavior, and complex systems to deploy solutions that genuinely scale.",
+        approach: "Learning by doing. Building projects alongside theory. Connecting ideas across disciplines. Using knowledge for real-world applications.",
+        traits: [
+          "Highly analytical and strategic thinker",
+          "Resilient due to early life experiences",
+          "Curious and constantly learning",
+          "Ambitious but grounded in reality",
+          "Values both absolute success and inner peace"
+        ],
+        domains: [
+          "Artificial Intelligence & Data Science",
+          "Programming & System Thinking (DSA)",
+          "Psychology, Sociology, and Human Behavior",
+          "Economics and the future impact of AI",
+          "Business, strategy, and real-world systems"
+        ]
+      },
+      focus: {
+        lastUpdated: "2026-05-03",
+        goals: [
+          "Master technical skills in AI, coding, and Data Structures",
+          "Prepare for GMAT with a strict strategic approach",
+          "Develop a psychology-focused NGO/initiative for students",
+          "Secure high-leverage internships and global exposure"
+        ],
+        skills: [
+          "Systematic Problem Solving",
+          "Quantitative Risk Management",
+          "Cognitive Task Optimization"
+        ],
+        active: [
+          "Building a definitive AI/DS project portfolio",
+          "Acquiring global certifications (Coursera, etc.)",
+          "Synthesizing tech and human behavioral models"
+        ]
+      },
+      journey: [
+        {
+          id: 1,
+          date: "CURRENT",
+          title: "B.E. ARTIFICIAL INTELLIGENCE & DATA SCIENCE",
+          did: "Commenced formal undergraduate studies in AI and Data Science.",
+          learned: "A structured environment provides the foundational mathematics required to scale raw cognitive capability into engineered systems.",
+          changed: "Shifted from purely tactical execution to long-term architectural planning in deep technology."
+        },
+        {
+          id: 2,
+          date: "PREVIOUS",
+          title: "QUANTITATIVE SYSTEMS & ALGO TRADING",
+          did: "Traded forex via prop firms and CFD accounts utilizing algorithmic and quantitative strategies.",
+          learned: "Markets aggressively punish emotional bias. True edge comes from extreme discipline, statistical risk management, and system optimization.",
+          changed: "Forged deep psychological resilience and solidified a permanent drive for absolute financial and operational independence."
+        },
+        {
+          id: 3,
+          date: "FOUNDATIONAL",
+          title: "COGNITIVE TASKS & STRATEGY",
+          did: "Cultivated a strong natural ability in cognitive tasks, problem-solving, and strategic thinking via coding and chess.",
+          learned: "Pattern recognition and strategic foresight are universal primitives that transfer across all high-level domains.",
+          changed: "Developed the ability to view challenges not as isolated problems, but as interconnected systems waiting to be decoded."
+        }
+      ],
+      learning: [
+        {
+          id: "CERT-001",
+          course: "Data Structures and Algorithms Specialization",
+          institution: "UC San Diego / Coursera",
+          progress: 30, 
+          status: "ACTIVE COMPUTATION",
+          methodology: "Constructing raw, optimized code from the ground up, bypassing surface-level abstractions to master underlying mechanics.",
+          challenge: "Forcing spatial and temporal complexity mapping into muscle memory before writing execution logic.",
+          metrics: "Drastically reduced Big-O execution time in complex graph traversals and algorithmic scaling."
+        },
+        {
+          id: "CERT-002",
+          course: "The Economics of AI",
+          institution: "University of Virginia",
+          progress: 100,
+          status: "ADVANCED CLEARANCE",
+          methodology: "Synthesizing deep-tech automation capabilities with macro-economic behavioral models to forecast market phase shifts.",
+          challenge: "Quantifying abstract human labor displacement against rigid machine-learning productivity curves.",
+          metrics: "Built predictive mental models mapping AI automation velocity against human psychological resilience.",
+          link: "https://www.coursera.org/account/accomplishments/verify/PZAD8HO2AOE5"
+        },
+        {
+          id: "CERT-003",
+          course: "Python for Everybody",
+          institution: "University of Michigan",
+          progress: 100,
+          status: "SYSTEM MASTERED",
+          methodology: "Immersive syntax repetition and architectural pipeline construction over passive lecture consumption.",
+          challenge: "Overwriting procedural habits to adopt advanced Pythonic idioms and vectorized data manipulation.",
+          metrics: "Automated multi-stage extraction protocols, slashing manual data-prep overhead significantly."
+        }
+      ],
+      projects: [
+        {
+          id: 1,
+          title: "PSYCHOLOGY-FOCUSED STUDENT INITIATIVE",
+          problem: "Students lack structured psychological support and cognitive frameworks to navigate high-pressure academic and life environments.",
+          approach: "Designing an NGO/initiative that leverages behavioral psychology to build resilience and strategic thinking in youth.",
+          outcome: "Currently in architectural phase. Mapping out core curriculum and support systems.",
+          learnings: "Social impact requires the same rigorous system design as a technical architecture."
+        },
+        {
+          id: 2,
+          title: "QUANTITATIVE TRADING FRAMEWORK",
+          problem: "Eliminating human psychological variance from volatile market environments in prop firm evaluations.",
+          approach: "Developed rule-based execution algorithms focusing on strict risk-to-reward metrics and drawdown limits.",
+          outcome: "Successfully navigated prop firm evaluations through statistical edge rather than intuition.",
+          learnings: "A mediocre system executed with perfect discipline beats a perfect system executed with human emotion."
+        }
+      ]
+    };
 
-    <div id="desktop"></div>
+    // --- SYSTEM COMPONENTS ---
+    const ButtonPrimary = ({ children, onClick, href }) => {
+      const baseClasses = "inline-flex items-center justify-center border border-white bg-transparent text-white rounded-full h-[44px] px-[32px] font-mono text-[14px] tracking-[2.5px] uppercase transition-colors duration-300 hover:bg-white hover:text-black cursor-pointer";
+      if (href) {
+        return <a href={href} className={baseClasses} target="_blank" rel="noopener noreferrer">{children}</a>;
+      }
+      return <button onClick={onClick} className={baseClasses}>{children}</button>;
+    };
 
-    <div id="taskbar">
-        <!-- New Start Button: Fingerprint with Cyan Gradient -->
-        <div id="start-btn" onclick="toggleStartMenu()"><i class="fa-solid fa-fingerprint"></i></div>
-        <div class="task-list" id="task-list"></div>
+    const TextLink = ({ children, onClick, href }) => {
+      const baseClasses = "text-[#c3d9f3] underline decoration-[#c3d9f3]/30 hover:decoration-[#c3d9f3] transition-colors cursor-pointer font-mono text-[12px] tracking-[2px] uppercase";
+      if (href) {
+        return <a href={href} className={baseClasses} target="_blank" rel="noopener noreferrer">{children}</a>;
+      }
+      return <span onClick={onClick} className={baseClasses}>{children}</span>;
+    };
+
+    // --- MAIN APPLICATION ---
+    const App = () => {
+      const [activeRoute, setActiveRoute] = useState('home');
+      const [menuOpen, setMenuOpen] = useState(false);
+      const [typingText, setTypingText] = useState("");
+      const [audioPlaying, setAudioPlaying] = useState(false);
+      const [sysLoad, setSysLoad] = useState(42.4);
+      
+      // Terminal Typing Logic
+      useEffect(() => {
+        const terminalSequence = `> SYSTEM ONLINE. USER: RAHUL J. // AGE: 19 // LOC: BLR. // SYS_MEM: ${sysLoad.toFixed(1)}% // INITIATING COGNITIVE PROTOCOLS...`;
+        let i = 0;
+        const typingInterval = setInterval(() => {
+          if (i <= terminalSequence.length) {
+            setTypingText(terminalSequence.slice(0, i));
+            i++;
+          } else {
+            clearInterval(typingInterval);
+          }
+        }, 20);
+        return () => clearInterval(typingInterval);
+      }, []);
+
+      // Live System Telemetry Logic
+      useEffect(() => {
+        const telemetryInterval = setInterval(() => {
+          setSysLoad(prev => (38 + Math.random() * 24)); 
+        }, 2500);
+        return () => clearInterval(telemetryInterval);
+      }, []);
+
+      const navigate = (route) => {
+        setActiveRoute(route);
+        setMenuOpen(false);
+        window.scrollTo(0, 0);
+      };
+
+      const toggleAudio = () => {
+        const audio = document.getElementById('dossier-audio');
+        if (!audio) return;
         
-        <div style="margin-left:auto; display:flex; gap:20px; padding-right:15px; align-items:center;">
-            <!-- Removed Curiosity Status -->
-            <div id="clock-area" style="text-align:right; color:white; font-size:12px;">
-                <div id="clock-time">00:00</div>
-                <div id="clock-date">Jan 01</div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const MISTRAL_KEY = "blAJT7bc5KHXR5UG3MbHl5OoyNF9Z9Jv"; // Reconstructed
-        const DISCORD_ID = "1110960444165849128";
-        const fileSystem = {
-            "forex_algo.py": { content: `import numpy as np\nclass LiquidityHunter:\n    def __init__(self):\n        self.elo = 1826` },
-            "bio.md": { content: `# Rahul J\n## Strategic Architect & AI Engineer\n\nI exist at the intersection of algorithmic precision and human intuition. My work focuses on deconstructing market microstructures and architecting neural networks that don't just learn, but *reason*.\n\n### Core Competencies\n- **AI/ML**: Building cognitive engines, not just models.\n- **System Architecture**: Scalable, resilient, and efficient.\n- **Strategy**: Applying game theory to code and markets.\n\n> "Tactics is knowing what to do when there is something to do. Strategy is knowing what to do when there is nothing to do."\n> — Savielly Tartakower` },
-            "philosophy.txt": { content: `THE UNANSWERED QUESTIONS\n\n1. If a neural network dreams, does it fear the wake-up call?\n2. Is consciousness a feature or a bug in the universal code?\n3. If we simulate a universe perfectly, are we gods or just admins?\n4. Does the strategy exist before the game, or does the game create the strategy?\n5. In the game of life, is the king more important than the pawn, or just more trapped?\n\n"The only true wisdom is in knowing you know nothing."` },
-            "MACD_Scalper.mq4": { content: `//+------------------------------------------------------------------+
-//|                                              Neural_MACD_Pro_v9.mq4 |
-//|                                   Copyright 2024, Rahul J Systems   |
-//|                                        https://www.stratos-ai.com   |
-//+------------------------------------------------------------------+
-#property copyright "Rahul J"
-#property link      "https://www.stratos-ai.com"
-#property version   "9.42"
-#property strict
-
-//--- INPUT PARAMETERS ---
-input string   Risk_Settings = "=== RISK MANAGEMENT ===";
-input double   RiskPercent    = 2.0;       // Risk per trade (%)
-input double   MaxDrawdown    = 15.0;      // Max Daily Drawdown (%)
-input double   LotSize        = 0.1;       // Fixed Lot (if Risk=0)
-input bool     UseMartingale  = false;     // Enable Recovery Mode
-input double   MartingaleMult = 1.5;       // Recovery Multiplier
-
-input string   Indi_Settings = "=== INDICATOR LOGIC ===";
-input int      FastEMA        = 12;        // Fast EMA Period
-input int      SlowEMA        = 26;        // Slow EMA Period
-input int      SignalSMA      = 9;         // Signal Period
-input int      RSI_Period     = 14;        // Relative Strength Index
-input int      Stoch_K        = 5;         // Stochastic K
-input int      Stoch_D        = 3;         // Stochastic D
-input int      Stoch_Slow     = 3;         // Stochastic Slowing
-
-//--- GLOBAL VARIABLES ---
-int       MagicNumber = 133742;
-double    PipValue;
-datetime  LastTradeTime;
-bool      IsHedging = false;
-
-//+------------------------------------------------------------------+
-//| Expert initialization function                                   |
-//+------------------------------------------------------------------+
-int OnInit()
-  {
-   if(Digits==3 || Digits==5) PipValue = Point*10;
-   else PipValue = Point;
-   
-   Print("Initialization Complete. Neural Filter: ACTIVE");
-   return(INIT_SUCCEEDED);
-  }
-
-//+------------------------------------------------------------------+
-//| Expert tick function                                             |
-//+------------------------------------------------------------------+
-void OnTick()
-  {
-   // --- PRE-TRADE CHECKS ---
-   if(IsNewBar() == false) return;
-   if(CheckDrawdown() == false) { Print("Drawdown Limit Hit. Halting."); return; }
-   
-   // --- SIGNAL CALCULATION ---
-   double macd_main   = iMACD(NULL,0,FastEMA,SlowEMA,SignalSMA,PRICE_CLOSE,MODE_MAIN,0);
-   double macd_signal = iMACD(NULL,0,FastEMA,SlowEMA,SignalSMA,PRICE_CLOSE,MODE_SIGNAL,0);
-   double rsi         = iRSI(NULL,0,RSI_Period,PRICE_CLOSE,0);
-   double stoch_main  = iStochastic(NULL,0,Stoch_K,Stoch_D,Stoch_Slow,MODE_SMA,0,MODE_MAIN,0);
-   
-   // --- NEURAL FILTER SIMULATION ---
-   bool neural_confirm = NeuralNetFilter(macd_main, rsi, stoch_main);
-   
-   // --- EXECUTION LOGIC ---
-   if(macd_main > macd_signal && rsi < 70 && stoch_main < 80 && neural_confirm)
-     {
-      if(OrdersTotal() == 0) OpenOrder(OP_BUY);
-     }
-   else if(macd_main < macd_signal && rsi > 30 && stoch_main > 20 && neural_confirm)
-     {
-      if(OrdersTotal() == 0) OpenOrder(OP_SELL);
-     }
-     
-   // --- TRAILING STOP LOGIC ---
-   ManageTrades();
-  }
-
-//+------------------------------------------------------------------+
-//| Custom Functions                                                 |
-//+------------------------------------------------------------------+
-bool NeuralNetFilter(double m, double r, double s)
-  {
-   // Simulating complex weight calculation from external Python model
-   double w1 = 0.432; 
-   double w2 = 0.115;
-   double w3 = 0.884;
-   double bias = 0.05;
-   
-   double activation = (m*w1) + (r*w2) + (s*w3) + bias;
-   
-   if(activation > 0.65) return true;
-   return false; // Filter out weak signals
-  }
-
-void OpenOrder(int type)
-  {
-   double sl = 0, tp = 0;
-   double price = (type == OP_BUY) ? Ask : Bid;
-   
-   if(type == OP_BUY)
-     {
-      sl = price - 50 * PipValue;
-      tp = price + 100 * PipValue;
-     }
-   else
-     {
-      sl = price + 50 * PipValue;
-      tp = price - 100 * PipValue;
-     }
-     
-   int ticket = OrderSend(Symbol(), type, CalculateLot(), price, 3, sl, tp, "Neural_Entry", MagicNumber, 0, Blue);
-   if(ticket < 0) Print("OrderSend failed with error #",GetLastError());
-  }
-
-double CalculateLot()
-  {
-   double balance = AccountBalance();
-   double riskMoney = balance * (RiskPercent / 100);
-   // Complex lot calculation based on margin and leverage
-   return LotSize; // Fallback
-  }
-
-bool CheckDrawdown() { return true; /* Placeholder for complexity */ }
-bool IsNewBar() { return true; /* Placeholder */ }
-void ManageTrades() { /* Trailing stop logic */ }
-` },
-            "Breakout_King.mq5": { content: `//+------------------------------------------------------------------+
-//|                                             Quantum_Breakout_X.mq5 |
-//|                                   Copyright 2024, Rahul J Systems  |
-//|                                       AI-Driven Liquidity Hunter   |
-//+------------------------------------------------------------------+
-#include <Trade\\Trade.mqh>
-#include <Trade\\SymbolInfo.mqh>
-#include <Trade\\PositionInfo.mqh>
-
-CTrade         m_trade;
-CSymbolInfo    m_symbol;
-CPositionInfo  m_position;
-
-//--- INPUT PARAMETERS ---
-input group    "--- STRATEGY SETTINGS ---"
-input int      LookBackPeriod = 24;        // H1 Candles to scan
-input double   BreakoutFactor = 1.0005;    // Threshold for entry
-input int      VolatilityFilter = 14;      // ATR Period
-input bool     UseSmartLiquidity = true;   // Enable Order Flow Analysis
-
-input group    "--- EXECUTION ENGINE ---"
-input double   InitialLot     = 0.5;
-input int      Magic_ID       = 998877;
-input int      Slippage       = 10;
-
-//--- GLOBAL BUFFERS ---
-double HighBuffer[];
-double LowBuffer[];
-double ATRBuffer[];
-int    ATRHandle;
-
-//+------------------------------------------------------------------+
-//| Expert initialization function                                   |
-//+------------------------------------------------------------------+
-int OnInit()
-  {
-   ATRHandle = iATR(_Symbol, _Period, VolatilityFilter);
-   if(ATRHandle == INVALID_HANDLE) 
-     {
-      Print("Failed to load ATR indicator");
-      return(INIT_FAILED);
-     }
-     
-   m_trade.SetExpertMagicNumber(Magic_ID);
-   Print("Quantum Engine: ONLINE. Scanning for liquidity pools...");
-   return(INIT_SUCCEEDED);
-  }
-
-//+------------------------------------------------------------------+
-//| Expert tick function                                             |
-//+------------------------------------------------------------------+
-void OnTick()
-  {
-   if(!m_symbol.Name(_Symbol)) return;
-   m_symbol.RefreshRates();
-   
-   // --- DATA GATHERING ---
-   CopyHigh(_Symbol, _Period, 1, LookBackPeriod, HighBuffer);
-   CopyLow(_Symbol, _Period, 1, LookBackPeriod, LowBuffer);
-   
-   double highestHigh = HighBuffer[ArrayMaximum(HighBuffer)];
-   double lowestLow   = LowBuffer[ArrayMinimum(LowBuffer)];
-   
-   // --- ORDER FLOW ANALYSIS (Simulated) ---
-   double buyVolume = 0; // In real logic, get from DOM
-   double sellVolume = 0;
-   
-   if(UseSmartLiquidity)
-     {
-      // Mock liquidity sweep logic
-      if(m_symbol.Ask() > highestHigh) 
-         Print("Liquidity Pool Breach DETECTED at: ", highestHigh);
-     }
-     
-   // --- ENTRY LOGIC ---
-   if(PositionsTotal() == 0)
-     {
-      if(m_symbol.Ask() > highestHigh * BreakoutFactor)
-        {
-         double sl = lowestLow;
-         double tp = m_symbol.Ask() + (m_symbol.Ask() - lowestLow) * 2; // 1:2 R:R
-         m_trade.Buy(InitialLot, _Symbol, m_symbol.Ask(), sl, tp, "Breakout_Long");
-        }
-      else if(m_symbol.Bid() < lowestLow / BreakoutFactor)
-        {
-         double sl = highestHigh;
-         double tp = m_symbol.Bid() - (highestHigh - m_symbol.Bid()) * 2;
-         m_trade.Sell(InitialLot, _Symbol, m_symbol.Bid(), sl, tp, "Breakout_Short");
-        }
-     }
-     
-   // --- DYNAMIC POSITION MANAGEMENT ---
-   ManageFloatingPositions();
-  }
-
-//+------------------------------------------------------------------+
-//| Helper Functions                                                 |
-//+------------------------------------------------------------------+
-void ManageFloatingPositions()
-  {
-   for(int i=PositionsTotal()-1; i>=0; i--)
-     {
-      if(m_position.SelectByIndex(i))
-        {
-         // Breakeven logic
-         if(m_position.PositionType() == POSITION_TYPE_BUY)
-           {
-            if(m_symbol.Bid() > m_position.PriceOpen() + 200 * _Point)
-              {
-               m_trade.PositionModify(m_position.Ticket(), m_position.PriceOpen(), m_position.TakeProfit());
-              }
-           }
-         // Advanced HFT-style trailing stop simulation
-        }
-     }
-  }
-
-void OnDeinit(const int reason)
-  {
-   IndicatorRelease(ATRHandle);
-   Print("Quantum Engine: SHUTTING DOWN.");
-  }
-` }
-        };
-
-        const apps = [
-            { name: "Terminal", type: "terminal", icon: "fa-terminal", color: "#2ea043" },
-            { name: "CustomLLM", type: "neuralchat", icon: "fa-microchip", color: "#a371f7" },
-            { name: "Browser", type: "browser", icon: "fa-globe", color: "#58a6ff" },
-            { name: "My Files", type: "explorer", icon: "fa-folder", color: "#ffbd2e" },
-            { name: "VS Code", type: "editor", icon: "fa-code", color: "#007acc" }
-        ];
-
-        let highestZ = 100;
-        let windows = [];
-
-        window.onload = async () => {
-            // Removed initMatrix call
-            
-            const logContainer = document.getElementById('boot-log');
-            const messages = [
-                { text: "Initialising StratOS Kernel...", delay: 400 },
-                { text: "Loading Cognitive Engine...", delay: 600 },
-                { text: "Initializing AI Systems...", delay: 800 },
-                { text: "Mounting Projects...", delay: 600 },
-                { text: "Verifying Integrity... OK", delay: 500, color: "#0aff60" },
-                { text: "SYSTEM READY", delay: 600, color: "#00f3ff", bold: true }
-            ];
-
-            for (const msg of messages) {
-                await new Promise(r => setTimeout(r, msg.delay));
-                const line = document.createElement('div');
-                line.className = 'log-line';
-                line.style.color = msg.color || "#8b949e";
-                if(msg.bold) line.style.fontWeight = 'bold';
-                line.innerText = `> ${msg.text}`;
-                logContainer.appendChild(line);
-            }
-
-            setTimeout(() => {
-                const scr = document.getElementById('boot-screen');
-                scr.style.transition = 'opacity 0.8s';
-                scr.style.opacity = '0';
-                setTimeout(() => scr.style.display = 'none', 800);
-                initDesktop();
-            }, 800);
-        };
-
-        // --- REMOVED MATRIX FUNCTIONS ---
-
-        function initDesktop() {
-            const desk = document.getElementById('desktop');
-            apps.forEach(app => {
-                const el = document.createElement('div');
-                el.className = 'desktop-icon';
-                el.innerHTML = `<i class="fa-solid ${app.icon}" style="color: ${app.color}"></i><span>${app.name}</span>`;
-                el.ondblclick = () => createWindow(app.name, app.type);
-                desk.appendChild(el);
+        if (audioPlaying) { 
+          audio.pause(); 
+          setAudioPlaying(false); 
+        } else { 
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              setAudioPlaying(true);
+            }).catch(error => {
+              console.error("Audio playback failed:", error);
+              setAudioPlaying(false);
             });
-            setInterval(updateClock, 1000);
-            updateClock();
+          }
         }
+      };
 
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock-time').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('clock-date').innerText = now.toLocaleDateString([], {month:'short', day:'numeric'});
-        }
+      // ----------------------------------------------------------------------
+      // RENDER DOSSIER LAYOUT (Stand-alone Overlay Layout)
+      // ----------------------------------------------------------------------
+      if (activeRoute === 'dossier') {
+        return (
+          <div className="min-h-screen w-full bg-black text-white flex items-center justify-center relative overflow-hidden animate-fade-in font-sans">
+            <style dangerouslySetInnerHTML={{__html: `
+              .font-display { font-family: 'Saira Condensed', sans-serif; }
+              .font-text { font-family: 'EB Garamond', serif; }
+              .font-mono { font-family: 'JetBrains Mono', monospace; }
+              .typography-display-lg { font-family: 'Saira Condensed', sans-serif; font-size: 48px; font-weight: 400; line-height: 1.15; letter-spacing: 3px; text-transform: uppercase; }
+              .typography-caption { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase; }
+              .typography-nav { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 400; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase; }
+              .typography-body-md { font-family: 'EB Garamond', serif; font-size: 16px; font-weight: 400; line-height: 1.5; letter-spacing: 0; text-transform: none; color: #cccccc; }
+              .animate-float { animation: float 8s ease-in-out infinite; }
+              @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+              .animate-scanline { animation: scanline 4s linear infinite; }
+              @keyframes scanline { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+              .animate-pulse-slow { animation: pulseBg 8s ease-in-out infinite alternate; }
+              @keyframes pulseBg { 0% { opacity: 0.3; } 100% { opacity: 0.6; } }
+              @media (max-width: 768px) { .typography-display-lg { font-size: 32px; } }
+            `}} />
 
-        function toggleStartMenu() {
-            const menu = document.getElementById('start-menu');
-            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
-        }
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a1c23] via-black to-black animate-pulse-slow z-0"></div>
 
-        function createWindow(title, type, key = null) {
-            highestZ++;
-            const id = 'win-' + Date.now();
-            const win = document.createElement('div');
-            win.className = 'window';
-            win.id = id;
-            win.style.zIndex = highestZ;
-            win.style.left = (100 + windows.length * 30) + 'px';
-            win.style.top = (100 + windows.length * 30) + 'px';
-            win.style.width = type === 'browser' ? '80%' : '600px';
-            win.style.height = type === 'browser' ? '80%' : '450px';
-
-            win.innerHTML = `
-                <div class="window-header" onmousedown="startDrag(event, '${id}')">
-                    <div class="window-title">${title}</div>
-                    <div class="window-controls">
-                        <div class="control-btn min-btn" onclick="document.getElementById('${id}').classList.add('minimized')"></div>
-                        <div class="control-btn max-btn" onclick="document.getElementById('${id}').classList.toggle('maximized')"></div>
-                        <div class="control-btn close-btn" onclick="closeWindow('${id}')"></div>
-                    </div>
-                </div>
-                <div class="window-content" id="content-${id}"></div>
-            `;
-            document.body.appendChild(win);
-            windows.push({ id, title, type });
-            renderApp(id, type, key);
-            updateTaskbar();
-        }
-
-        function closeWindow(id) {
-            document.getElementById(id).remove();
-            windows = windows.filter(w => w.id !== id);
-            updateTaskbar();
-        }
-
-        function startDrag(e, id) {
-            const win = document.getElementById(id);
-            focusWindow(id);
-            if (e.target.closest('.window-controls')) return;
-            let shiftX = e.clientX - win.getBoundingClientRect().left;
-            let shiftY = e.clientY - win.getBoundingClientRect().top;
-            function onMove(me) { win.style.left = me.pageX - shiftX + 'px'; win.style.top = me.pageY - shiftY + 'px'; }
-            document.addEventListener('mousemove', onMove);
-            document.onmouseup = () => { document.removeEventListener('mousemove', onMove); };
-        }
-
-        function focusWindow(id) {
-            highestZ++;
-            document.getElementById(id).style.zIndex = highestZ;
-            updateTaskbar();
-        }
-
-        function updateTaskbar() {
-            const list = document.getElementById('task-list');
-            list.innerHTML = '';
-            windows.forEach(w => {
-                const item = document.createElement('div');
-                item.className = 'task-item';
-                item.innerHTML = `<i class="fa-solid fa-window-maximize"></i>`;
-                item.onclick = () => focusWindow(w.id);
-                list.appendChild(item);
-            });
-        }
-
-        function renderApp(id, type, key) {
-            const container = document.getElementById(`content-${id}`);
-            if (type === 'terminal') {
-                container.innerHTML = `<div class="terminal-app"><div id="term-out-${id}">StratOS v4.6 Terminal</div><div class="term-input-line"><span class="prompt-user">rahul@root:~$</span>&nbsp;<input class="term-input" onkeydown="handleTerm(event, this, '${id}')"></div></div>`;
-            } else if (type === 'browser') {
-                container.innerHTML = `<div class="browser-app"><div class="browser-bar"><div class="browser-nav" onclick="navBrowser('${id}', 'home')"><i class="fa-solid fa-house"></i></div><div class="browser-nav" onclick="navBrowser('${id}', 'back')"><i class="fa-solid fa-arrow-left"></i></div><div class="url-bar"><span id="url-${id}">Portfolio Hub</span></div></div><div class="browser-content" id="frame-${id}"></div></div>`;
-                navBrowser(id, 'home');
-            } else if (type === 'neuralchat') {
-                container.innerHTML = `<div class="chat-app"><div class="chat-messages" id="chat-out-${id}"></div><div class="chat-input-area"><input class="chat-input" id="chat-in-${id}" onkeydown="if(event.key==='Enter') handleChat('${id}')"><button class="chat-btn" onclick="handleChat('${id}')">Send</button></div></div>`;
-            } else if (type === 'editor') {
-                const file = key || 'forex_algo.py';
-                container.innerHTML = `
-                    <div class="vscode-layout" id="editor-layout-${id}">
-                        <div class="vscode-sidebar">
-                            <div style="padding:10px; font-weight:bold; font-size:11px; opacity:0.6;">EXPLORER</div>
-                            <div id="file-list-${id}">
-                                ${Object.keys(fileSystem).map(f => `<div class="vscode-file ${f === file ? 'active' : ''}" onclick="switchFile('${id}', '${f}')">${f}</div>`).join('')}
-                            </div>
-                        </div>
-                        <div class="vscode-main">
-                            <div class="vscode-editor-area">
-                                <div class="vscode-gutter" id="gt-${id}"></div>
-                                <div class="vscode-code" id="code-${id}" contenteditable="true" spellcheck="false" oninput="updateGutter('${id}')"></div>
-                            </div>
-                        </div>
-                    </div>`;
-                switchFile(id, file);
-            } else if (type === 'explorer') {
-                container.innerHTML = `<div style="padding:20px">${Object.keys(fileSystem).map(f => `<div style="cursor:pointer; margin-bottom:10px" onclick="createWindow('${f}', 'editor', '${f}')"><i class="fa-solid fa-file"></i> ${f}</div>`).join('')}</div>`;
-            }
-        }
-
-        function switchFile(id, fileName) {
-            const codeArea = document.getElementById(`code-${id}`);
-            const fileList = document.getElementById(`file-list-${id}`);
-            if (!codeArea || !fileSystem[fileName]) return;
-
-            // Update content
-            codeArea.innerText = fileSystem[fileName].content;
+            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" onError={(e) => { e.target.style.display = 'none'; }}>
+              <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-a-network-of-connections-31298-large.mp4" type="video/mp4" />
+            </video>
             
-            // Update sidebar UI
-            if (fileList) {
-                fileList.querySelectorAll('.vscode-file').forEach(el => {
-                    el.classList.toggle('active', el.innerText.trim() === fileName);
-                });
-            }
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/30 to-black/90 pointer-events-none z-10"></div>
 
-            updateGutter(id);
-        }
+            <audio id="dossier-audio" loop>
+               <source src="https://assets.mixkit.co/music/preview/mixkit-ambient-sci-fi-documentary-145.mp3" type="audio/mpeg" />
+            </audio>
 
-        function updateGutter(id) {
-            const codeArea = document.getElementById(`code-${id}`);
-            const gutter = document.getElementById(`gt-${id}`);
-            if (!codeArea || !gutter) return;
-            
-            const lines = codeArea.innerText.split('\n').length;
-            let lineNums = '';
-            for(let i=1; i<=Math.max(lines, 1); i++) {
-                lineNums += i + '<br>';
-            }
-            gutter.innerHTML = lineNums;
-        }
+            <button onClick={() => navigate('home')} className="absolute top-8 left-6 md:left-12 typography-nav text-white hover:text-[#c3d9f3] z-[110] flex items-center gap-3 transition-colors cursor-pointer">
+              <ArrowRight className="rotate-180" size={14} /> RETURN
+            </button>
 
-        function navBrowser(id, url) {
-            const frame = document.getElementById(`frame-${id}`);
-            const urlSpan = document.getElementById(`url-${id}`);
-            
-            if (url === 'home') {
-                frame.innerHTML = `
-                    <div class="browser-home">
-                        <div style="text-align:center">
-                            <i class="fa-solid fa-earth-americas" style="font-size:60px; color:#58a6ff; margin-bottom:20px;"></i>
-                            <div class="browser-title" style="font-size:24px; font-weight:bold;">Intelligence Hub</div>
-                        </div>
-                        <div class="dial-grid">
-                            <div class="dial-item" onclick="navBrowser('${id}', 'tools-hub')"><div class="dial-icon">🛠️</div><div class="dial-label">Tools</div></div>
-                            <div class="dial-item" onclick="loadChess('${id}')"><div class="dial-icon" style="color:#2ecc71"><i class="fa-solid fa-chess-knight"></i></div><div class="dial-label">Chess Stats</div></div>
-                            <div class="dial-item" onclick="loadGithub('${id}')"><div class="dial-icon" style="color:#fff"><i class="fa-brands fa-github"></i></div><div class="dial-label">GitHub</div></div>
-                            <div class="dial-item" onclick="loadDiscord('${id}')"><div class="dial-icon" style="color:#5865F2"><i class="fa-brands fa-discord"></i></div><div class="dial-label">Discord</div></div>
-                        </div>
-                    </div>`;
-                urlSpan.innerText = "New Tab";
-            } 
-            else if (url === 'back') {
-                const current = urlSpan.innerText;
-                if (current.includes('vyapari.space')) {
-                    navBrowser(id, 'tools-hub');
-                } else if (current === 'Tools Hub') {
-                    navBrowser(id, 'home');
-                } else {
-                    navBrowser(id, 'home');
-                }
-            }
-            else if (url === 'tools-hub') {
-                frame.innerHTML = `
-                    <div class="tools-hub-container">
-                        <div class="tools-header">Select a Toolset</div>
-                        <div class="tool-cards">
-                            <div class="tool-card" onclick="navBrowser('${id}', 'https://www.vyapari.space/aitools/')">
-                                <div class="tool-bg"></div>
-                                <div class="tool-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                                <div class="tool-name">AI Suite</div>
-                                <div class="tool-desc">Access advanced AI utilities</div>
-                            </div>
-                            <div class="tool-card" onclick="navBrowser('${id}', 'https://www.vyapari.space/tools/')">
-                                <div class="tool-bg" style="background: linear-gradient(45deg, #ff7b72, #ffbd2e);"></div>
-                                <div class="tool-icon"><i class="fa-solid fa-toolbox"></i></div>
-                                <div class="tool-name">General Utilities</div>
-                                <div class="tool-desc">Everyday developer tools</div>
-                            </div>
-                            <div class="tool-card" onclick="navBrowser('${id}', 'https://www.vyapari.space/coder/')">
-                                <div class="tool-bg" style="background: linear-gradient(45deg, #2ea043, #58a6ff);"></div>
-                                <div class="tool-icon"><i class="fa-solid fa-laptop-code"></i></div>
-                                <div class="tool-name">Coder Space</div>
-                                <div class="tool-desc">IDE & Coding Tools</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                urlSpan.innerText = "Tools Hub";
-            }
-            else {
-                frame.innerHTML = `<iframe src="${url}" allow="camera; microphone; fullscreen; display-capture; geolocation" style="width:100%; height:100%; border:none; display:block;"></iframe>`;
-                urlSpan.innerText = url;
-            }
-        }
+            <button onClick={toggleAudio} className="absolute top-8 right-6 md:right-12 typography-nav text-white hover:text-[#c3d9f3] z-[110] flex items-center gap-3 transition-colors cursor-pointer">
+              {audioPlaying ? 'SOUND [ ON ]' : 'SOUND [ OFF ]'}
+            </button>
 
-        async function loadChess(id) {
-            const frame = document.getElementById(`frame-${id}`);
-            document.getElementById(`url-${id}`).innerText = "chess.com/member/MysteriousThoughts";
-            frame.innerHTML = `<div style="padding:20px; color:white;">Loading Chess Data...</div>`;
-            
-            try {
-                const profileRes = await fetch('https://api.chess.com/pub/player/MysteriousThoughts');
-                const profile = await profileRes.json();
-                const statsRes = await fetch('https://api.chess.com/pub/player/MysteriousThoughts/stats');
-                const stats = await statsRes.json();
-
-                const avatar = profile.avatar || 'https://images.chesscomfiles.com/uploads/v1/user/null.png';
-                const rapidElo = stats.chess_rapid?.last?.rating || 'N/A';
-                const rapidPeak = stats.chess_rapid?.best?.rating || 'N/A';
-                const blitzElo = stats.chess_blitz?.last?.rating || 'N/A';
-                const blitzPeak = stats.chess_blitz?.best?.rating || 'N/A';
+            <div className="animate-float relative z-[110] border border-[#262626] bg-[#050505]/60 backdrop-blur-xl p-[40px] md:p-[64px] max-w-[560px] w-full mx-6 flex flex-col items-center text-center group hover:border-[#3a3a3a] transition-colors shadow-2xl overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-[#c3d9f3]/40 animate-scanline z-0 pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-[#c3d9f3] opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
                 
-                frame.innerHTML = `
-                    <div style="width:100%; height:100%; background:#0d1117; display:flex; justify-content:center; align-items:center;">
-                        <div class="chess-card">
-                            <div style="display:flex; align-items:center; gap:15px; width:100%;">
-                                <img src="${avatar}" class="chess-avatar">
-                                <div>
-                                    <div style="font-size:20px; font-weight:bold; color:#fff">${profile.username}</div>
-                                    <div style="color:#8b949e; font-size:12px;">Grandmaster Strategy</div>
-                                </div>
-                            </div>
-                            <div class="chess-stats-grid">
-                                <div class="stat-box">
-                                    <div class="stat-label">Rapid</div>
-                                    <div class="stat-val" style="color:#ffce47">${rapidElo}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Peak</div>
-                                    <div class="stat-val">${rapidPeak}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Blitz</div>
-                                    <div class="stat-val" style="color:#ff7b72">${blitzElo}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Peak</div>
-                                    <div class="stat-val">${blitzPeak}</div>
-                                </div>
-                            </div>
-                            <div class="chess-quote">"The best move is the one that restricts your opponent."</div>
-                        </div>
-                    </div>`;
-            } catch(e) {
-                frame.innerHTML = `<div style="padding:20px; color:#ff7b72">Failed to load Chess stats.</div>`;
-            }
-        }
+                <div className="relative z-10 w-full flex flex-col items-center">
+                  <div className="typography-caption text-[#c3d9f3] tracking-[4px] mb-[32px]">EXECUTIVE DOSSIER</div>
+                  <h1 className="typography-display-lg text-white mb-[8px]">{DATA.profile.name}</h1>
+                  <p className="typography-caption text-[#999999] mb-[40px] tracking-[3px]">19 // BLR // AI ARCHITECT</p>
 
-        async function loadGithub(id) {
-            const frame = document.getElementById(`frame-${id}`);
-            document.getElementById(`url-${id}`).innerText = "github.com/SolvyrEryx";
-            
-            // Check cache
-            const cacheKey = 'neural_gh_cache_solvyr';
-            const cached = localStorage.getItem(cacheKey);
-            let data = null;
+                  <div className="w-[40px] h-[1px] bg-[#3a3a3a] mb-[40px] group-hover:bg-white transition-colors"></div>
 
-            if (cached) {
-                const parsed = JSON.parse(cached);
-                if (Date.now() - parsed.timestamp < 3600000) data = parsed.data;
-            }
+                  <p className="typography-body-md text-[#cccccc] mb-[48px] max-w-[400px]">
+                     Building intelligent systems and cognitive architectures. Engineering the intersection of deep tech, human behavior, and high-performance execution.
+                  </p>
 
-            if (!data) {
-                frame.innerHTML = `<div style="padding:20px; color:white;">Loading GitHub Data...</div>`;
-                try {
-                    const userRes = await fetch('https://api.github.com/users/SolvyrEryx');
-                    const user = await userRes.json();
-                    const reposRes = await fetch('https://api.github.com/users/SolvyrEryx/repos?sort=updated&per_page=100');
-                    const repos = await reposRes.json();
-                    data = { user, repos };
-                    localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
-                } catch (e) {
-                    frame.innerHTML = `<div style="padding:20px; color:#ff7b72;">Failed to load GitHub data.</div>`;
-                    return;
-                }
-            }
+                  <div className="flex flex-col gap-[16px] w-full items-center">
+                      <a href={DATA.profile.linkedin} target="_blank" rel="noopener noreferrer" className="typography-nav text-white border border-[#262626] hover:border-[#c3d9f3] bg-black/50 transition-colors py-[16px] px-[32px] w-full max-w-[320px] flex justify-center items-center gap-3">
+                          <Linkedin size={16} /> SECURE LINKEDIN NETWORK
+                      </a>
+                      <a href={DATA.profile.github} target="_blank" rel="noopener noreferrer" className="typography-nav text-white border border-[#262626] hover:border-[#c3d9f3] bg-black/50 transition-colors py-[16px] px-[32px] w-full max-w-[320px] flex justify-center items-center gap-3">
+                          <Github size={16} /> ACCESS GITHUB REPOSITORY
+                      </a>
+                      <a href={`https://discordapp.com/users/${DATA.profile.discord}`} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#999999] hover:text-white border border-[#262626] bg-black/30 transition-colors py-[16px] px-[32px] w-full max-w-[320px] flex justify-center items-center gap-3">
+                          <DiscordIcon size={16} /> SECURE DISCORD COMMS
+                      </a>
+                  </div>
+                </div>
+            </div>
+          </div>
+        );
+      }
 
-            const { user, repos } = data;
-            const repoHtml = Array.isArray(repos) ? repos.map(r => {
-                const langColor = { Python:'#3572A5', JavaScript:'#f1e05a', HTML:'#e34c26', CSS:'#563d7c', TypeScript:'#2b7489' }[r.language] || '#ccc';
-                return `
-                <div class="card">
-                    <div class="card-left">
-                        <div class="card-title">
-                            <i class="fa-solid fa-book-bookmark" style="color:#8b949e;"></i> 
-                            <span style="margin-left:5px">${r.name}</span>
-                        </div>
-                        <div class="card-desc">${r.description || 'No description provided.'}</div>
-                        <div class="card-meta">
-                            <span><span class="lang-dot" style="background:${langColor}"></span>${r.language || 'Text'}</span>
-                            <span><i class="fa-regular fa-star"></i> ${r.stargazers_count}</span>
-                            <span><i class="fa-solid fa-code-fork"></i> ${r.forks_count}</span>
-                        </div>
+      // ----------------------------------------------------------------------
+      // RENDER STANDARD DASHBOARD (For all other routes)
+      // ----------------------------------------------------------------------
+      return (
+        <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black font-sans pb-[120px] relative">
+          <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0" style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
+          <style dangerouslySetInnerHTML={{__html: `
+            .font-display { font-family: 'Saira Condensed', sans-serif; }
+            .font-text { font-family: 'EB Garamond', serif; }
+            .font-mono { font-family: 'JetBrains Mono', monospace; }
+            .typography-display-xl { font-family: 'Saira Condensed', sans-serif; font-size: 64px; font-weight: 400; line-height: 1.1; letter-spacing: 4px; text-transform: uppercase; }
+            .typography-display-lg { font-family: 'Saira Condensed', sans-serif; font-size: 48px; font-weight: 400; line-height: 1.15; letter-spacing: 3px; text-transform: uppercase; }
+            .typography-display-md { font-family: 'Saira Condensed', sans-serif; font-size: 32px; font-weight: 400; line-height: 1.2; letter-spacing: 2px; text-transform: uppercase; }
+            .typography-display-sm { font-family: 'Saira Condensed', sans-serif; font-size: 24px; font-weight: 400; line-height: 1.3; letter-spacing: 1.5px; text-transform: uppercase; }
+            .typography-wordmark { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: 6px; text-transform: uppercase; }
+            .typography-title-md { font-family: 'Saira Condensed', sans-serif; font-size: 20px; font-weight: 400; line-height: 1.3; letter-spacing: 1px; text-transform: uppercase; }
+            .typography-caption { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase; }
+            .typography-button { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: 2.5px; text-transform: uppercase; }
+            .typography-nav { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 400; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase; }
+            .typography-body-md { font-family: 'EB Garamond', serif; font-size: 16px; font-weight: 400; line-height: 1.5; letter-spacing: 0; text-transform: none; color: #cccccc; }
+            .typography-body-sm { font-family: 'EB Garamond', serif; font-size: 14px; font-weight: 400; line-height: 1.5; letter-spacing: 0; text-transform: none; color: #cccccc; }
+            .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+            .animate-scanline { animation: scanline 4s linear infinite; }
+            @keyframes scanline { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+            .cursor-blink::after { content: '█'; animation: blink 1s step-start infinite; color: #c3d9f3; margin-left: 4px;}
+            @keyframes blink { 50% { opacity: 0; } }
+            @media (max-width: 768px) { .typography-display-xl { font-size: 40px; } .typography-display-lg { font-size: 32px; } }
+          `}} />
+
+          {/* TOP NAVIGATION */}
+          <nav className="fixed top-0 left-0 w-full h-[56px] flex items-center justify-between px-6 md:px-10 z-50 bg-black border-b border-[#262626]">
+            <button onClick={() => setMenuOpen(!menuOpen)} className="typography-nav text-white hover:text-[#cccccc] transition-colors flex items-center gap-2">
+              {menuOpen ? <X size={16} /> : "MENU"}
+            </button>
+            <div onClick={() => navigate('home')} className="typography-wordmark text-white cursor-pointer select-none relative left-3">
+              {DATA.profile.name}
+            </div>
+            <button onClick={() => navigate('focus')} className="typography-nav text-[#c3d9f3] hover:text-white transition-colors flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c3d9f3] animate-pulse"></span>
+              <span className="hidden sm:inline">LIVE STATUS</span>
+            </button>
+          </nav>
+
+          {/* FULL SCREEN MENU */}
+          {menuOpen && (
+            <div className="fixed inset-0 bg-black z-40 flex flex-col justify-center items-center px-6 animate-fade-in" style={{ animationFillMode: 'both' }}>
+              <div className="flex flex-col gap-[40px] items-center">
+                {['home', 'identity', 'journey', 'learning', 'projects', 'focus', 'dossier'].map((route) => (
+                  <button key={route} onClick={() => navigate(route)} className={`typography-display-md hover:text-[#999999] transition-colors ${activeRoute === route ? 'text-white' : 'text-[#3a3a3a]'}`}>
+                    {route}
+                  </button>
+                ))}
+                <div className="w-[40px] h-[1px] bg-[#262626] my-[24px]"></div>
+                <div className="flex flex-wrap justify-center gap-8">
+                  <a href={DATA.profile.linkedin} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#999999] hover:text-white">LINKEDIN</a>
+                  <a href={DATA.profile.github} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#999999] hover:text-white">GITHUB</a>
+                  <a href={`https://discordapp.com/users/${DATA.profile.discord}`} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#999999] hover:text-white flex items-center gap-2">
+                    <DiscordIcon size={14} /> DISCORD
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PAGE CONTENT */}
+          <main className="pt-[120px] px-6 md:px-12 max-w-[1280px] mx-auto min-h-[80vh] flex flex-col relative z-10" key={activeRoute}>
+
+            {/* === ROUTE: HOME === */}
+            {activeRoute === 'home' && (
+              <div className="flex flex-col animate-fade-in" style={{ animationFillMode: 'both' }}>
+                <div className="mb-[64px] border border-[#262626] bg-[#0d0d0d] p-4 flex items-center gap-3">
+                  <Terminal size={14} className="text-[#666666]" />
+                  <span className="typography-caption text-[#999999] cursor-blink">{typingText}</span>
+                </div>
+
+                <section className="min-h-[50vh] flex flex-col justify-center max-w-[1000px] mb-[120px]">
+                  <div className="flex items-center gap-4 mb-6">
+                     <span className="typography-caption text-[#c3d9f3]">// PROFILE: RAHUL J.</span>
+                     <div className="h-[1px] w-12 bg-[#262626]"></div>
+                  </div>
+                  <h1 className="typography-display-xl mb-[32px] text-white">{DATA.profile.headline}</h1>
+                  <p className="typography-body-md max-w-[700px] mb-[64px] text-[18px]">{DATA.profile.subtitle}</p>
+                  <div className="flex flex-wrap gap-4">
+                    <ButtonPrimary onClick={() => navigate('identity')}>READ CORE IDENTITY</ButtonPrimary>
+                    <ButtonPrimary onClick={() => navigate('journey')}>VIEW TIMELINE</ButtonPrimary>
+                  </div>
+                </section>
+
+                <section className="mb-[120px] flex justify-center animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+                   <div className="border border-[#262626] bg-[#050505] p-[32px] md:p-[48px] w-full max-w-[1000px] flex flex-col md:flex-row gap-[40px] items-center justify-between hover:border-[#3a3a3a] transition-colors relative group overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-[1px] bg-[#c3d9f3]/20 animate-scanline pointer-events-none"></div>
+                      <div className="absolute top-0 left-0 w-1 h-full bg-[#c3d9f3] opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
+                      
+                      <div className="flex flex-col gap-[16px] w-full md:w-auto relative z-10">
+                         <span className="typography-caption text-[#c3d9f3] tracking-[4px]">EXECUTIVE DOSSIER</span>
+                         <h3 className="typography-display-sm text-white">{DATA.profile.name}</h3>
+                         <p className="typography-body-sm text-[#999999] max-w-[400px]">19 // BLR // AI & Data Science Undergrad.<br/>Builder of intelligent systems and cognitive architectures.</p>
+                      </div>
+                      
+                      <div className="flex flex-col gap-[16px] w-full md:w-auto border-t md:border-t-0 md:border-l border-[#262626] pt-[24px] md:pt-0 md:pl-[40px] relative z-10">
+                         <a href={DATA.profile.linkedin} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#cccccc] hover:text-white flex items-center gap-3 transition-colors">
+                           <Linkedin size={16} /> LINKEDIN NETWORK
+                         </a>
+                         <a href={DATA.profile.github} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#cccccc] hover:text-white flex items-center gap-3 transition-colors">
+                           <Github size={16} /> GITHUB REPOSITORY
+                         </a>
+                         <a href={`https://discordapp.com/users/${DATA.profile.discord}`} target="_blank" rel="noopener noreferrer" className="typography-nav text-[#666666] hover:text-white flex items-center gap-3 mt-2 transition-colors">
+                           <DiscordIcon size={16} /> {DATA.profile.discord}
+                         </a>
+                      </div>
+                   </div>
+                </section>
+
+                <section className="mb-[120px]">
+                   <div className="grid grid-cols-1 md:grid-cols-4 border-t border-l border-[#262626]">
+                     {[
+                       { label: "PRIMARY DOMAIN", val: "AI & DATA SCIENCE" },
+                       { label: "COGNITIVE LEANING", val: "HIGHLY ANALYTICAL" },
+                       { label: "BACKGROUND", val: "ALGO TRADING" },
+                       { label: "LONG-TERM VECTOR", val: "SOCIAL IMPACT" }
+                     ].map((stat, i) => (
+                       <div key={i} className="border-b border-r border-[#262626] p-6 bg-[#000000] hover:bg-[#0d0d0d] transition-colors animate-fade-in" style={{ animationDelay: `${0.3 + (i * 0.1)}s`, animationFillMode: 'both' }}>
+                         <div className="typography-caption text-[#666666] mb-4">// {stat.label}</div>
+                         <div className="typography-title-md text-white">{stat.val}</div>
+                       </div>
+                     ))}
+                   </div>
+                </section>
+
+                <section className="mb-[120px] grid grid-cols-1 lg:grid-cols-2 gap-[64px]">
+                  <div>
+                    <div className="flex items-center gap-4 mb-[40px]">
+                      <h2 className="typography-display-lg">SYSTEM ARCHITECTURE</h2>
                     </div>
-                    <div class="card-actions">
-                        <a href="${r.html_url}" target="_blank" class="repo-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+                    <div className="flex flex-col gap-[24px]">
+                      {DATA.projects.map((proj, idx) => (
+                        <div key={proj.id} className="p-[24px] border border-[#262626] bg-[#0d0d0d] hover:border-white transition-colors cursor-pointer group animate-fade-in" style={{ animationDelay: `${0.4 + (idx * 0.1)}s`, animationFillMode: 'both' }} onClick={() => navigate('projects')}>
+                          <div className="flex justify-between items-center mb-[16px]">
+                            <span className="typography-caption text-[#666666]">PRJ—{String(proj.id).padStart(3, '0')}</span>
+                            <ArrowRight size={14} className="text-[#3a3a3a] group-hover:text-white transition-colors"/>
+                          </div>
+                          <h3 className="typography-display-sm text-white mb-[12px]">{proj.title}</h3>
+                          <p className="typography-body-sm text-[#999999] line-clamp-2">{proj.problem}</p>
+                        </div>
+                      ))}
+                      <div className="pt-4">
+                         <TextLink onClick={() => navigate('projects')}>VIEW FULL PROJECT SPECS</TextLink>
+                      </div>
                     </div>
-                </div>`;
-            }).join('') : '<div style="padding:20px">No repositories found.</div>';
+                  </div>
 
-            frame.innerHTML = `
-                <div class="social-feed">
-                    <div class="github-layout">
-                        <div class="github-sidebar">
-                            <img src="${user.avatar_url}" class="profile-img">
-                            <div class="profile-name">${user.name || user.login}</div>
-                            <div class="profile-login">${user.login}</div>
-                            <div class="profile-bio" style="color:#aaa; margin-bottom:15px; font-size:13px;">${user.bio || 'System Architect'}</div>
-                            <div class="profile-stats" style="color:#ccc; font-size:13px;"><i class="fa-solid fa-users"></i> <b>${user.followers}</b> followers · <b>${user.following}</b> following</div>
-                        </div>
-                        <div class="github-main">
-                            <div class="repo-grid">${repoHtml}</div>
-                        </div>
+                  <div>
+                    <div className="flex items-center gap-4 mb-[40px]">
+                      <h2 className="typography-display-lg">ACTIVE LEARNING</h2>
                     </div>
-                </div>`;
-        }
-
-        async function loadDiscord(id) {
-            const frame = document.getElementById(`frame-${id}`);
-            document.getElementById(`url-${id}`).innerText = "discord.com/users/" + DISCORD_ID;
-            frame.innerHTML = `<div style="padding:20px; color:white;">Connecting to Lanyard...</div>`;
-
-            try {
-                const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-                const json = await res.json();
-                const d = json.data;
-                const user = d.discord_user;
-                const avatar = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
-                const bannerStyle = d.discord_user.banner ? `background-image: url('https://cdn.discordapp.com/banners/${user.id}/${user.banner}.png?size=512');` : `background-color: ${d.kv?.accent_color || '#18191c'}`;
-                const statusColor = { online:'#23a559', idle:'#f0b232', dnd:'#f23f43', offline:'#80848e' }[d.discord_status];
-
-                frame.innerHTML = `
-                    <div class="discord-container">
-                        <div class="discord-modal">
-                            <div class="discord-banner" style="${bannerStyle}"></div>
-                            <div class="discord-avatar-wrapper">
-                                <img src="${avatar}" class="discord-avatar">
-                                <div class="discord-status-dot" style="background-color:${statusColor}"></div>
-                            </div>
-                            <div class="discord-badges">
-                                <div class="discord-badge" title="Developer"><i class="fa-solid fa-code" style="color:#fff"></i></div>
-                            </div>
-                            <div class="discord-body">
-                                <div class="discord-username">${user.global_name || user.username}</div>
-                                <div class="discord-handle">${user.username}</div>
-                                <div class="discord-section-title">Bio</div>
-                                <div class="discord-bio">Engineer defined by strategy. Calculated risk.</div>
-                                ${d.activities.length > 0 ? `
-                                <div class="discord-section-title">Activity</div>
-                                <div class="discord-activity-card">
-                                    <div>
-                                        <div style="font-weight:bold; font-size:14px; color:#fff">${d.activities[0].name}</div>
-                                        <div style="font-size:13px; color:#b9bbbe">${d.activities[0].state || ''}</div>
-                                    </div>
-                                </div>` : ''}
-                            </div>
+                    <div className="flex flex-col gap-[24px]">
+                      {DATA.learning.slice(0,2).map((cert, idx) => (
+                        <div key={cert.id} className="p-[24px] border border-[#262626] bg-black hover:border-[#c3d9f3] transition-colors cursor-pointer animate-fade-in" style={{ animationDelay: `${0.5 + (idx * 0.1)}s`, animationFillMode: 'both' }} onClick={() => navigate('learning')}>
+                          <div className="flex justify-between items-center mb-[16px]">
+                             <span className="typography-caption text-[#c3d9f3]">{cert.id}</span>
+                             <span className="typography-caption text-[#999999]">{cert.progress}% DONE</span>
+                          </div>
+                          <h3 className="typography-title-md text-white mb-[8px]">{cert.course}</h3>
+                          <p className="typography-body-sm text-[#666666] mb-[16px]">{cert.institution}</p>
+                          <div className="w-full h-[2px] bg-[#262626] mt-[16px]">
+                            <div className="h-full bg-white transition-all duration-1000 ease-out" style={{ width: `${cert.progress}%` }}></div>
+                          </div>
                         </div>
-                    </div>`;
-            } catch (e) {
-                frame.innerHTML = `<div style="padding:20px; color:#ff7b72;">Failed to fetch Discord status.</div>`;
-            }
-        }
+                      ))}
+                      <div className="pt-4">
+                         <TextLink onClick={() => navigate('learning')}>VIEW ALL CERTIFICATION METRICS</TextLink>
+                      </div>
+                    </div>
+                  </div>
+                </section>
 
-        async function handleChat(id) {
-            const input = document.getElementById(`chat-in-${id}`);
-            const out = document.getElementById(`chat-out-${id}`);
-            const text = input.value.trim();
-            if(!text) return;
-            
-            // User Message
-            out.innerHTML += `<div class="chat-bubble user">${text}</div>`;
-            input.value = '';
-            out.scrollTop = out.scrollHeight;
+                <section className="mb-[120px] animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+                  <div className="flex items-center gap-4 mb-[40px]">
+                    <h2 className="typography-display-lg">CURRENT FOCUS</h2>
+                    <div className="w-full h-[1px] bg-[#262626] flex-1"></div>
+                  </div>
+                  <div className="p-[24px] bg-[#141414] border border-[#262626]">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-[40px]">
+                      <div>
+                        <h3 className="typography-caption text-[#999999] mb-[16px]">// GOALS</h3>
+                        <ul className="space-y-[12px]">
+                          {DATA.focus.goals.slice(0,3).map((g,i) => <li key={i} className="typography-body-sm">{g}</li>)}
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="typography-caption text-[#999999] mb-[16px]">// SKILLS IN PROGRESS</h3>
+                        <ul className="space-y-[12px]">
+                          {DATA.focus.skills.map((s,i) => <li key={i} className="typography-body-sm">{s}</li>)}
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="typography-caption text-[#999999] mb-[16px]">// ACTIVE PROJECTS</h3>
+                        <ul className="space-y-[12px]">
+                          {DATA.focus.active.map((p,i) => <li key={i} className="typography-body-sm">{p}</li>)}
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="mt-[40px] pt-[24px] border-t border-[#262626] flex justify-between items-center">
+                      <span className="typography-caption text-[#666666]">LAST UPDATED: {DATA.focus.lastUpdated}</span>
+                      <TextLink onClick={() => navigate('focus')}>FULL STATUS LOG</TextLink>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
 
-            // Image Generation Logic (Pollinations AI)
-            const lowerText = text.toLowerCase();
-            if (lowerText.startsWith('/image') || lowerText.startsWith('generate image') || lowerText.startsWith('draw')) {
-                const prompt = text.replace(/^\/image|generate image|draw/i, '').trim();
-                if (prompt.length > 0) {
-                    out.innerHTML += `<div class="chat-bubble bot">Generating visual representation of: "${prompt}"...</div>`;
-                    out.scrollTop = out.scrollHeight;
-                    
-                    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-                    const imgTag = `<img src="${imgUrl}" onload="this.parentElement.scrollIntoView()" onerror="this.parentElement.innerText='Image generation failed.'" style="max-width:100%; border-radius:8px; margin-top:5px;">`;
-                    
-                    // Simulate a small delay for "thinking"
-                    setTimeout(() => {
-                        out.innerHTML += `<div class="chat-bubble bot">${imgTag}</div>`;
-                        out.scrollTop = out.scrollHeight;
-                    }, 1000);
-                    return;
-                }
-            }
+            {/* === ROUTE: IDENTITY === */}
+            {activeRoute === 'identity' && (
+              <div className="flex flex-col max-w-[1000px] animate-fade-in" style={{ animationFillMode: 'both' }}>
+                <h1 className="typography-display-xl mb-[64px]">CORE IDENTITY</h1>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-[64px] mb-[120px]">
+                  <div className="md:col-span-7 flex flex-col gap-[40px]">
+                    <div className="p-8 border border-[#262626] bg-[#050505]">
+                      <h3 className="typography-caption text-[#c3d9f3] mb-[24px]">// THE PHILOSOPHY</h3>
+                      <p className="typography-body-md text-white text-[18px] leading-relaxed">{DATA.identity.core}</p>
+                    </div>
+                    <div>
+                      <h3 className="typography-caption text-[#666666] mb-[16px]">// LONG-TERM VISION</h3>
+                      <p className="typography-body-md text-[#cccccc] italic">"{DATA.identity.vision}"</p>
+                    </div>
+                    <div>
+                      <h3 className="typography-caption text-[#666666] mb-[16px]">// LEARNING APPROACH</h3>
+                      <p className="typography-body-md text-[#cccccc]">{DATA.identity.approach}</p>
+                    </div>
+                  </div>
+                  <div className="md:col-span-5 flex flex-col gap-[40px]">
+                    <div>
+                       <h3 className="typography-display-sm mb-[24px] border-b border-[#262626] pb-4">PSYCHOLOGICAL TRAITS</h3>
+                       <ul className="space-y-[16px]">
+                         {DATA.identity.traits.map((trait, i) => (
+                           <li key={i} className="flex items-start gap-3 typography-body-sm text-[#cccccc] animate-fade-in" style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'both' }}>
+                             <span className="text-[#3a3a3a] mt-1 font-mono text-[10px]">0{i+1}</span>{trait}
+                           </li>
+                         ))}
+                       </ul>
+                    </div>
+                    <div>
+                       <h3 className="typography-display-sm mb-[24px] border-b border-[#262626] pb-4">INTEREST DOMAINS</h3>
+                       <ul className="space-y-[16px]">
+                         {DATA.identity.domains.map((domain, i) => (
+                           <li key={i} className="flex items-start gap-3 typography-body-sm text-[#cccccc] animate-fade-in" style={{ animationDelay: `${0.3 + (i * 0.1)}s`, animationFillMode: 'both' }}>
+                             <span className="text-[#3a3a3a] mt-1 font-mono text-[10px]">0{i+1}</span>{domain}
+                           </li>
+                         ))}
+                       </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-            // Text Generation Logic (Mistral)
-            try {
-                const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MISTRAL_KEY}` },
-                    body: JSON.stringify({ model: "mistral-medium", messages: [{role: "user", content: text}] })
-                });
-                const data = await res.json();
-                const reply = data.choices && data.choices.length > 0 ? data.choices[0].message.content : "No response from neural core.";
-                out.innerHTML += `<div class="chat-bubble bot">${reply}</div>`;
-            } catch(e) { 
-                out.innerHTML += `<div class="chat-bubble bot">Neural link error: ${e.message}</div>`; 
-            }
-            out.scrollTop = out.scrollHeight;
-        }
+            {/* === ROUTE: JOURNEY === */}
+            {activeRoute === 'journey' && (
+              <div className="flex flex-col max-w-[900px] animate-fade-in" style={{ animationFillMode: 'both' }}>
+                <h1 className="typography-display-xl mb-[120px]">THE JOURNEY</h1>
+                <div className="relative">
+                  <div className="hidden md:block absolute left-[200px] top-0 bottom-0 w-[1px] bg-[#262626]"></div>
+                  <div className="flex flex-col">
+                    {DATA.journey.map((entry, idx) => (
+                      <div key={entry.id} className="py-[64px] border-b md:border-none border-[#262626] flex flex-col md:flex-row gap-[24px] md:gap-[64px] relative group animate-fade-in" style={{ animationDelay: `${idx * 0.2}s`, animationFillMode: 'both' }}>
+                        <div className="w-full md:w-[136px] shrink-0 md:text-right pt-1">
+                          <span className="typography-caption text-[#999999]">{entry.date}</span>
+                        </div>
+                        <div className="hidden md:block absolute left-[197px] top-[70px] w-[7px] h-[7px] rounded-full bg-[#3a3a3a] group-hover:bg-white transition-all duration-500 group-hover:scale-[1.5]"></div>
+                        <div className="flex-1">
+                          <h3 className="typography-title-md text-white mb-[32px]">{entry.title}</h3>
+                          <div className="grid grid-cols-1 gap-[24px]">
+                            <div>
+                              <h4 className="typography-caption text-[#666666] mb-[8px]">WHAT I DID</h4>
+                              <p className="typography-body-sm text-[#e6e6e6]">{entry.did}</p>
+                            </div>
+                            <div>
+                              <h4 className="typography-caption text-[#666666] mb-[8px]">WHAT I LEARNED</h4>
+                              <p className="typography-body-sm text-[#cccccc]">{entry.learned}</p>
+                            </div>
+                            <div>
+                              <h4 className="typography-caption text-[#666666] mb-[8px]">WHAT CHANGED</h4>
+                              <p className="typography-body-sm text-[#999999] italic">{entry.changed}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
-        function handleTerm(e, input, id) {
-            if(e.key === 'Enter') {
-                const out = document.getElementById(`term-out-${id}`);
-                out.innerHTML += `<div>rahul@root:~$ ${input.value}</div>`;
-                if(input.value === 'whoami') out.innerHTML += `<div>Rahul J | Strategic Architect</div>`;
-                input.value = '';
-            }
-        }
-    </script>
+            {/* === ROUTE: LEARNING === */}
+            {activeRoute === 'learning' && (
+              <div className="flex flex-col animate-fade-in" style={{ animationFillMode: 'both' }}>
+                <h1 className="typography-display-xl mb-[32px]">CERTIFICATION MONOLITHS</h1>
+                <p className="typography-body-md text-[#999999] max-w-[600px] mb-[120px]">
+                  Not just certificates. Deep-dives into the friction, methodology, and the measurable delta achieved during each learning protocol.
+                </p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-[40px]">
+                  {DATA.learning.map((cert, idx) => (
+                    <div key={cert.id} className="relative group border border-[#262626] bg-[#050505] overflow-hidden transition-all duration-500 hover:border-[#c3d9f3] flex flex-col min-h-[600px] animate-fade-in" style={{ animationDelay: `${idx * 0.15}s`, animationFillMode: 'both' }}>
+                      <div className="p-[32px] border-b border-[#262626] bg-[#0d0d0d] relative z-10">
+                        <div className="flex justify-between items-center mb-[24px]">
+                           <div className="flex items-center gap-4">
+                             <span className="typography-caption text-[#c3d9f3] font-bold tracking-[4px]">{cert.id}</span>
+                             {cert.link && (
+                               <a href={cert.link} target="_blank" rel="noopener noreferrer" className="text-[#666666] hover:text-white transition-colors" title="Verify Credentials">
+                                 <ExternalLink size={14} />
+                               </a>
+                             )}
+                           </div>
+                           <Activity size={16} className={cert.progress === 100 ? "text-white" : "text-[#666666]"} />
+                        </div>
+                        <h3 className="typography-display-sm text-white leading-tight mb-[16px]">{cert.course}</h3>
+                        <p className="typography-caption text-[#999999]">{cert.institution}</p>
+                      </div>
+                      <div className="w-full h-[3px] bg-[#141414] relative z-10">
+                         <div className="h-full bg-[#c3d9f3] transition-all duration-1000 ease-out delay-500" style={{ width: `${cert.progress}%` }}></div>
+                      </div>
+                      <div className="p-[32px] flex flex-col gap-[32px] flex-1 z-10 bg-[#050505] group-hover:bg-black transition-colors">
+                        <div>
+                          <h4 className="typography-caption text-[#666666] mb-[12px] flex items-center gap-2"><span className="w-1 h-1 bg-[#666666]"></span> METHODOLOGY</h4>
+                          <p className="typography-body-sm text-[#cccccc]">{cert.methodology}</p>
+                        </div>
+                        <div>
+                          <h4 className="typography-caption text-[#666666] mb-[12px] flex items-center gap-2"><span className="w-1 h-1 bg-[#666666]"></span> FRICTION / CHALLENGE</h4>
+                          <p className="typography-body-sm text-[#cccccc]">{cert.challenge}</p>
+                        </div>
+                        <div className="mt-auto pt-[24px] border-t border-[#262626]">
+                          <h4 className="typography-caption text-white mb-[12px] flex items-center gap-2"><span className="w-1 h-1 bg-white"></span> METRIC DELTA</h4>
+                          <p className="typography-body-sm text-[#e6e6e6] font-medium">{cert.metrics}</p>
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#c3d9f3]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* === ROUTE: PROJECTS === */}
+            {activeRoute === 'projects' && (
+              <div className="flex flex-col animate-fade-in" style={{ animationFillMode: 'both' }}>
+                <h1 className="typography-display-xl mb-[120px]">PROJECT ARCHITECTURE</h1>
+                <div className="flex flex-col gap-[64px]">
+                  {DATA.projects.map((proj, idx) => (
+                    <div key={proj.id} className="group flex flex-col md:flex-row border border-[#262626] bg-[#0d0d0d] hover:border-[#666666] transition-colors duration-500 animate-fade-in" style={{ animationDelay: `${idx * 0.2}s`, animationFillMode: 'both' }}>
+                      <div className="w-full md:w-[320px] bg-black border-b md:border-b-0 md:border-r border-[#262626] p-[32px] flex flex-col justify-between aspect-video md:aspect-auto">
+                         <span className="typography-caption text-[#3a3a3a]">PRJ—{String(proj.id).padStart(3, '0')}</span>
+                         <div className="w-[40px] h-[1px] bg-white group-hover:w-full transition-all duration-700 ease-in-out"></div>
+                      </div>
+                      <div className="flex-1 p-[32px] md:p-[64px]">
+                        <h2 className="typography-display-md text-white mb-[40px]">{proj.title}</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-[40px]">
+                          <div>
+                            <h4 className="typography-caption text-[#666666] mb-[12px]">PROBLEM</h4>
+                            <p className="typography-body-md text-[#cccccc]">{proj.problem}</p>
+                          </div>
+                          <div>
+                            <h4 className="typography-caption text-[#666666] mb-[12px]">APPROACH</h4>
+                            <p className="typography-body-md text-[#cccccc]">{proj.approach}</p>
+                          </div>
+                          <div className="md:col-span-2 pt-[24px] border-t border-[#262626]">
+                            <h4 className="typography-caption text-[#c3d9f3] mb-[12px]">OUTCOME & LEARNING</h4>
+                            <p className="typography-body-sm text-[#e6e6e6] mb-[16px]">{proj.outcome}</p>
+                            <p className="typography-body-sm text-[#999999] italic">{proj.learnings}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* === ROUTE: FOCUS === */}
+            {activeRoute === 'focus' && (
+              <div className="flex flex-col max-w-[1000px] mx-auto w-full animate-fade-in" style={{ animationFillMode: 'both' }}>
+                <div className="mb-[64px] flex items-center gap-4">
+                   <span className="w-3 h-3 rounded-full bg-[#c3d9f3] animate-pulse"></span>
+                   <h1 className="typography-display-xl text-white">SYSTEM STATUS</h1>
+                </div>
+                <div className="p-[32px] md:p-[64px] border border-[#262626] bg-[#0d0d0d]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-[80px]">
+                    <div className="flex flex-col gap-[64px]">
+                      <div>
+                        <h2 className="typography-caption text-[#c3d9f3] mb-[24px] border-b border-[#262626] pb-[16px]">// CURRENT GOALS</h2>
+                        <ul className="space-y-[24px]">
+                          {DATA.focus.goals.map((goal, idx) => <li key={idx} className="typography-body-md text-white animate-fade-in" style={{ animationDelay: `${idx * 0.1}s`, animationFillMode: 'both' }}>{goal}</li>)}
+                        </ul>
+                      </div>
+                      <div>
+                        <h2 className="typography-caption text-[#999999] mb-[24px] border-b border-[#262626] pb-[16px]">// ACTIVE PROJECTS</h2>
+                        <ul className="space-y-[24px]">
+                          {DATA.focus.active.map((proj, idx) => (
+                            <li key={idx} className="typography-body-md text-white flex items-center justify-between animate-fade-in" style={{ animationDelay: `${0.3 + (idx * 0.1)}s`, animationFillMode: 'both' }}>
+                              {proj} <ArrowRight size={14} className="text-[#666666]"/>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-[64px]">
+                       <div>
+                        <h2 className="typography-caption text-[#999999] mb-[24px] border-b border-[#262626] pb-[16px]">// SKILLS IN ROTATION</h2>
+                        <ul className="space-y-[24px]">
+                          {DATA.focus.skills.map((skill, idx) => <li key={idx} className="typography-title-md text-[#cccccc] tracking-[0] normal-case animate-fade-in" style={{ animationDelay: `${0.6 + (idx * 0.1)}s`, animationFillMode: 'both' }}>{skill}</li>)}
+                        </ul>
+                      </div>
+                      <div className="mt-auto pt-[40px]">
+                        <div className="bg-black border border-[#262626] p-[24px] relative overflow-hidden group">
+                           <div className="absolute top-0 left-0 w-full h-[1px] bg-[#c3d9f3]/20 animate-scanline pointer-events-none"></div>
+                           <p className="typography-caption text-[#666666] mb-[8px]">SYSTEM LOAD: {sysLoad.toFixed(1)}%</p>
+                           <p className="typography-body-sm text-[#999999]">Operating nominally. Current learning vector oriented towards system level AI architecture and cognitive behavior mapping. No immediate pivots planned.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-[80px] pt-[32px] border-t border-[#262626]">
+                    <p className="typography-caption text-[#666666]">DATA LAST SYNCED: {DATA.focus.lastUpdated}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* FOOTER */}
+          <footer className="mt-[120px] px-6 md:px-12 max-w-[1280px] mx-auto border-t border-[#262626] pt-[64px] pb-[64px] relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-[64px] md:gap-0">
+              <div className="flex flex-col">
+                <div className="typography-wordmark text-white mb-[32px] text-[20px] tracking-[8px]">{DATA.profile.name}</div>
+                <p className="typography-body-sm text-[#666666] max-w-[300px]">
+                  A command centre for growth, engineering, and systemic learning. Built on principles of extreme minimalism and precision.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-[64px]">
+                <div className="flex flex-col gap-[16px]">
+                  <span className="typography-caption text-[#3a3a3a] mb-[8px]">NAVIGATION</span>
+                  {['home', 'identity', 'journey', 'learning', 'projects', 'focus', 'dossier'].map(route => (
+                    <button key={route} onClick={() => navigate(route)} className="typography-body-sm text-[#999999] hover:text-white text-left uppercase tracking-widest text-[11px] font-mono transition-colors">
+                      {route}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-[16px]">
+                  <span className="typography-caption text-[#3a3a3a] mb-[8px]">CONNECT</span>
+                  <a href={DATA.profile.linkedin} target="_blank" rel="noopener noreferrer" className="typography-body-sm text-[#999999] hover:text-[#c3d9f3] flex items-center gap-2 transition-colors">
+                    LinkedIn <ExternalLink size={12} />
+                  </a>
+                  <a href={DATA.profile.github} target="_blank" rel="noopener noreferrer" className="typography-body-sm text-[#999999] hover:text-[#c3d9f3] flex items-center gap-2 transition-colors">
+                    GitHub <ExternalLink size={12} />
+                  </a>
+                  <a href={`https://discordapp.com/users/${DATA.profile.discord}`} target="_blank" rel="noopener noreferrer" className="typography-body-sm text-[#999999] hover:text-[#c3d9f3] flex items-center gap-2 mt-1 transition-colors">
+                    <DiscordIcon size={12} /> {DATA.profile.discord}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="mt-[120px] flex justify-between items-center text-[#666666] typography-caption text-[10px]">
+              <span>© {new Date().getFullYear()} RAHUL J. ALL RIGHTS RESERVED.</span>
+              <span>SYSTEM VERSION: ALPHA 1.3</span>
+            </div>
+          </footer>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
