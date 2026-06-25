@@ -13,10 +13,32 @@
   <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Load React & Babel -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Load React & Babel — pinned to stable versions via jsDelivr (unpkg was unreliable) -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
+
+  <!-- Premium SVG Favicon: corner-bracket RJ monogram matching site aesthetic -->
+  <script>
+    (function () {
+      var svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">',
+          '<rect width="32" height="32" fill="#000"/>',
+          // top-left corner bracket
+          '<polyline points="3,11 3,3 11,3" fill="none" stroke="#c3d9f3" stroke-width="1.5"/>',
+          // bottom-right corner bracket
+          '<polyline points="21,29 29,29 29,21" fill="none" stroke="#c3d9f3" stroke-width="1.5"/>',
+          // RJ initials
+          '<text x="4" y="22" font-family="monospace" font-size="13" fill="#ffffff">RJ</text>',
+        '</svg>'
+      ].join('');
+      var link = document.createElement('link');
+      link.rel  = 'icon';
+      link.type = 'image/svg+xml';
+      link.href = 'data:image/svg+xml;base64,' + btoa(svg);
+      document.head.appendChild(link);
+    })();
+  </script>
 
   <style>
     body { background-color: #000; margin: 0; padding: 0; }
@@ -25,7 +47,8 @@
 <body>
   <div id="root"></div>
 
-  <script type="text/babel">
+  <!-- data-presets="env,react" added: newer Babel standalone no longer auto-detects JSX without it -->
+  <script type="text/babel" data-presets="env,react">
     const { useState, useEffect } = React;
 
     // --- ICON SYSTEM (Replacing Lucide Imports for Standalone HTML) ---
